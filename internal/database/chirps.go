@@ -48,7 +48,7 @@ func (db *DB) GetChirpByID(id int) (Chirp, error) {
 
 	chirp, ok := dbStructure.Chirps[id]
 	if !ok {
-		return Chirp{}, ErrChirpNotExists
+		return Chirp{}, ErrNotExist
 	}
 
 	return chirp, nil

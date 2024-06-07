@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	ErrChirpNotExists = errors.New("chirp does not exist")
+	ErrNotExist      = errors.New("resource does not exist")
+	ErrAlreadyExists = errors.New("already exists")
 )
 
 type DB struct {

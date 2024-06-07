@@ -23,7 +23,7 @@ func main() {
 
 	if *dbg {
 		if err := os.Remove("database.json"); err != nil {
-			log.Fatalf("failed to remove database: %s", err)
+			log.Printf("Failed to %s", err)
 		}
 	}
 
@@ -44,6 +44,7 @@ func main() {
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	mux.HandleFunc("GET /api/reset", apiCfg.resetMetrics)
 
+	mux.HandleFunc("POST /api/login", apiCfg.handleUserLogin)
 	mux.HandleFunc("POST /api/users", apiCfg.handleCreateUser)
 	mux.HandleFunc("POST /api/chirps", apiCfg.handleCreateChirp)
 	mux.HandleFunc("GET /api/chirps", apiCfg.handleRetrieveChirp)
