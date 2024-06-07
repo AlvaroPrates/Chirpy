@@ -1,8 +1,10 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/AlvaroPrates/Chirpy/internal/database"
 )
@@ -16,9 +18,18 @@ func main() {
 	const filepathRoot = "."
 	const port = "8080"
 
+	dbg := flag.Bool("debug", false, "Enable debug mode")
+	flag.Parse()
+
+	if *dbg {
+		if err := os.Remove("database.json"); err != nil {
+			log.Fatalf("failed to remove database: %s", err)
+		}
+	}
+
 	db, err := database.NewDB("database.json")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to create database: %s", err)
 	}
 
 	apiCfg := apiConfig{

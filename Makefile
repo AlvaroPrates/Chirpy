@@ -1,5 +1,5 @@
 build:
-	go build -o ./bin/chirpy
+	go build -o ./bin/chirpy 
 
 run: build
-	./bin/chirpy
+	./bin/chirpy --debug
