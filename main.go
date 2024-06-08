@@ -7,14 +7,20 @@ import (
 	"os"
 
 	"github.com/AlvaroPrates/Chirpy/internal/database"
+	"github.com/joho/godotenv"
 )
 
 type apiConfig struct {
 	fileServerHits int
 	DB             *database.DB
+	jwtSecret      string
 }
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("failed to load env variables: ", err)
+	}
+
 	const filepathRoot = "."
 	const port = "8080"
 
@@ -23,18 +29,19 @@ func main() {
 
 	if *dbg {
 		if err := os.Remove("database.json"); err != nil {
-			log.Printf("Failed to %s", err)
+			log.Print("Failed to ", err)
 		}
 	}
 
 	db, err := database.NewDB("database.json")
 	if err != nil {
-		log.Fatalf("failed to create database: %s", err)
+		log.Fatal("failed to create database: ", err)
 	}
 
 	apiCfg := apiConfig{
 		fileServerHits: 0,
 		DB:             db,
+		jwtSecret:      os.Getenv("JWT_SECRET"),
 	}
 
 	mux := http.NewServeMux()
