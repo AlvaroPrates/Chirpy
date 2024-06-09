@@ -3,9 +3,9 @@ package database
 import "errors"
 
 type User struct {
-	ID       int    `json:"id"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	ID             int    `json:"id"`
+	Email          string `json:"email"`
+	HashedPassword string `json:"password"`
 }
 
 func (db *DB) CreateUser(email, password string) (User, error) {
@@ -20,15 +20,29 @@ func (db *DB) CreateUser(email, password string) (User, error) {
 
 	id := len(dbStructure.Users) + 1
 	user := User{
-		ID:       id,
-		Email:    email,
-		Password: password,
+		ID:             id,
+		Email:          email,
+		HashedPassword: password,
 	}
 	dbStructure.Users[id] = user
 
 	err = db.writeDB(dbStructure)
 	if err != nil {
 		return User{}, err
+	}
+
+	return user, nil
+}
+
+func (db *DB) GetUser(id int) (User, error) {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return User{}, err
+	}
+
+	user, ok := dbStructure.Users[id]
+	if !ok {
+		return User{}, ErrNotExist
 	}
 
 	return user, nil
@@ -47,4 +61,27 @@ func (db *DB) GetUserByEmail(email string) (User, error) {
 	}
 
 	return User{}, ErrNotExist
+}
+
+func (db *DB) UpdateUser(userID int, email, hashedPassword string) (User, error) {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return User{}, err
+	}
+
+	user, ok := dbStructure.Users[userID]
+	if !ok {
+		return User{}, ErrNotExist
+	}
+
+	user.Email = email
+	user.HashedPassword = hashedPassword
+	dbStructure.Users[userID] = user
+
+	err = db.writeDB(dbStructure)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
 }

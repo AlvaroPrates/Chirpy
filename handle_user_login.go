@@ -15,8 +15,7 @@ func (cfg *apiConfig) handleUserLogin(w http.ResponseWriter, r *http.Request) {
 		ExpiresInSeconds int    `json:"expires_in_seconds"`
 	}
 	type returningVals struct {
-		ID    int    `json:"id"`
-		Email string `json:"email"`
+		User
 		Token string `json:"token"`
 	}
 
@@ -34,22 +33,30 @@ func (cfg *apiConfig) handleUserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = auth.CheckPasswordHash(params.Password, user.Password)
+	err = auth.CheckPasswordHash(params.Password, user.HashedPassword)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Invalid password")
 		return
 	}
 
-	expiresAt := time.Now().Add(time.Duration(params.ExpiresInSeconds))
+	defaultExpiration := 60 * 60 * 24
 
-	jwt, err := auth.CreateJWT(cfg.jwtSecret, expiresAt)
+	if params.ExpiresInSeconds == 0 {
+		params.ExpiresInSeconds = defaultExpiration
+	} else if params.ExpiresInSeconds > defaultExpiration {
+		params.ExpiresInSeconds = defaultExpiration
+	}
+
+	jwt, err := auth.CreateJWT(user.ID, cfg.jwtSecret, time.Duration(params.ExpiresInSeconds)*time.Second)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create jwt")
 	}
 
 	respondWithJSON(w, http.StatusOK, returningVals{
-		ID:    user.ID,
-		Email: user.Email,
+		User: User{
+			ID:    user.ID,
+			Email: user.Email,
+		},
 		Token: jwt,
 	})
 }
