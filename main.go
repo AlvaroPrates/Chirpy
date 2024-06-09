@@ -52,6 +52,8 @@ func main() {
 	mux.HandleFunc("GET /api/reset", apiCfg.resetMetrics)
 
 	mux.HandleFunc("POST /api/login", apiCfg.handleUserLogin)
+	mux.HandleFunc("POST /api/refresh", apiCfg.handleRefresh)
+	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
 	mux.HandleFunc("POST /api/users", apiCfg.handleCreateUser)
 	mux.HandleFunc("PUT /api/users", apiCfg.handleUserUpdate)
 	mux.HandleFunc("POST /api/chirps", apiCfg.handleCreateChirp)
